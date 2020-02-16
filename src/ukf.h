@@ -58,7 +58,7 @@ class UKF {
   Eigen::MatrixXd P_;
 
   // predicted sigma points matrix
-  Eigen::MatrixXd Xsig_pred_;
+  Eigen::MatrixXd Xsig_pred_;  // with sigma points as columns
 
   // time when the state is true, in us
   long long time_us_;
@@ -95,6 +95,25 @@ class UKF {
 
   // Sigma point spreading parameter
   double lambda_;
+
+
+  // Auxiliary  ////
+
+  Eigen::VectorXd x_aug_;  // augmented mean vector
+  Eigen::MatrixXd P_aug_;  // augmented state covariance
+
+  Eigen::MatrixXd Xsig_;  // sigma point matrix
+  Eigen::MatrixXd Xsig_aug_;
+
+  Eigen::VectorXd x_pred_;  // vector for predicted state
+  Eigen::MatrixXd P_pred_;  // covariance matrix for prediction
+
+  int n_z_;
+  Eigen::MatrixXd Zsig_;  // sigma points in measurement space
+  Eigen::VectorXd z_pred_;  // mean predicted measurement
+  Eigen::MatrixXd S_;  // measurement covariance matrix S
+  Eigen::MatrixXd R_; // measurement noise covariance matrix
+
 };
 
 #endif  // UKF_H

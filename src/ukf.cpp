@@ -81,6 +81,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   // if all positions of Vector have been initialised
   // is_initialized_ = true;
 
+  /*
   if (is_initialized_ == false)  // if (!is_initialized_)
   {
     if (meas_package.sensor_type_ == meas_package.SensorType::LASER)  // LiDAR
@@ -142,6 +143,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       UpdateRadar(meas_package);
     }
   }
+  */
 }
 
 

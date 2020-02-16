@@ -44,7 +44,7 @@ UKF::UKF() {
   // Augmented state dimension
   int n_aug_ = 7;
 
-  // Sigma point spreading parameter
+  // Sigma point spreading parameter for augmentation
   double lambda_ = 3 - n_aug_;
 
   // Time when the state is true, in us
@@ -116,18 +116,17 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       // covariance
       P_ << std_radr_*std_radr_, 0, 0, 0, 0,
             0, std_radr_*std_radr_, 0, 0, 0,
-            0, 0, std_radrd_*std_radrd_, 0, 0,  // try 0, 0, 1, 0, 0
+            0, 0, std_radrd_*std_radrd_, 0, 0,  // TOTRY: 0, 0, 1, 0, 0
             0, 0, 0, std_radphi_, 0,
             0, 0, 0, 0, std_radphi_;
     }
     
     time_us_ = meas_package.timestamp_;
     is_initialized_ = true;
-    return;  // no need for else {}
   }
-  else // is_initialized_ == true
+  else // is_initialized_ == true  // TODO: consider adding return to if and omit else
   {
-    double delta_t = (meas_package.timestamp_ - time_us_) / 1000000.0;
+    double delta_t = (meas_package.timestamp_ - time_us_) / 1000000.0;  // diff in seconds between this and previous measurement timestamps
     time_us_ = meas_package.timestamp_;
 
     // Prediction
@@ -143,9 +142,6 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       UpdateRadar(meas_package);
     }
   }
-  
-
-  
 }
 
 
@@ -155,17 +151,25 @@ void UKF::Prediction(double delta_t) {  // eg. delta_t = 0.1; time diff in sec
   // Predict sigma points, the state, and the state covariance matrix.
 
 
-  // calculate square root of P
-  MatrixXd A = P_.llt().matrixL();
+  // augment mean state
+  x_aug_.head(5) = x_;
+  x_aug_(5) = 0;
+  x_aug_(6) = 0;
+  // augment covariance matrix
+  P_aug_.fill(0.0);
+  P_aug_.topLeftCorner(n_x_, n_x_) = P_;
+  P_aug_(n_aug_-2, n_aug_-2) = std_a_*std_a_;
+  P_aug_(n_aug_-1, n_aug_-1) = std_yawdd_*std_yawdd_;
 
-  // set first column of sigma point matrix
-  Xsig_.col(0) = x_;
 
-  // set remaining sigma points
-  for (int i = 0; i < n_x_; ++i) {
-    Xsig_.col(i+1)     = x_ + sqrt(lambda_+n_x_) * A.col(i);
-    Xsig_.col(i+1+n_x_) = x_ - sqrt(lambda_+n_x_) * A.col(i);
+  // TOTRY: check order - if this before the augmentation, P_ and Xsig_, Xsig_aug, n_x_. to try, copy from kalman_filter repo
+  MatrixXd sq_root = P_aug_.llt().matrixL();  // square root of P
+  Xsig_aug_.col(0) = x_aug_;  // set first column of sigma point matrix
+  for (int i = 0; i < n_aug_; ++i) {  // calculate and set remaining sigma points as columns of Xsig_
+    Xsig_aug_.col(i+1)        = x_aug_ + sqrt(lambda_+n_aug_) * sq_root.col(i);
+    Xsig_aug_.col(i+1+n_aug_) = x_aug_ - sqrt(lambda_+n_aug_) * sq_root.col(i);
   }
+
 
   // predict sigma points
   for (int i = 0; i < 2*n_aug_+1; ++i) {
@@ -178,13 +182,13 @@ void UKF::Prediction(double delta_t) {  // eg. delta_t = 0.1; time diff in sec
     double nu_a = Xsig_aug_(5,i);
     double nu_yawdd = Xsig_aug_(6,i);
 
-    // predicted state values
+    // predicted states
     double px_p, py_p;
 
     // avoid division by zero
     if (fabs(yawd) > 0.001) {
-        px_p = p_x + v/yawd * ( sin (yaw + yawd*delta_t) - sin(yaw));
-        py_p = p_y + v/yawd * ( cos(yaw) - cos(yaw+yawd*delta_t) );
+        px_p = p_x + v/yawd * (sin(yaw + yawd*delta_t) - sin(yaw));
+        py_p = p_y + v/yawd * (-cos(yaw) + cos(yaw+yawd*delta_t) );  // TOTRY: cos -cos
     } else {
         px_p = p_x + v*delta_t*cos(yaw);
         py_p = p_y + v*delta_t*sin(yaw);
@@ -210,11 +214,9 @@ void UKF::Prediction(double delta_t) {  // eg. delta_t = 0.1; time diff in sec
   }
 
   // set weights
-  double weight_0 = lambda_/(lambda_+n_aug_);
-  weights_(0) = weight_0;
-  for (int i=1; i<2*n_aug_+1; ++i) {  // 2n+1 weights
-    double weight = 0.5/(n_aug_+lambda_);
-    weights_(i) = weight;
+  weights_(0) = lambda_/(lambda_+n_aug_);
+  for (int i = 1; i < 2*n_aug_+1; ++i) {
+    weights_(i) = 0.5/(n_aug_+lambda_);
   }
 
   // predicted state mean
@@ -229,17 +231,14 @@ void UKF::Prediction(double delta_t) {  // eg. delta_t = 0.1; time diff in sec
     // state difference
     VectorXd x_diff = Xsig_pred_.col(i) - x_pred_;
     // angle normalization
-    while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
-    while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
-
-    P_pred_ = P_pred_ + weights_(i) * x_diff * x_diff.transpose() ;
+    while (x_diff(3)> M_PI) x_diff(3) -= 2.*M_PI;
+    while (x_diff(3)<-M_PI) x_diff(3) += 2.*M_PI;
+    P_pred_ = P_pred_ + weights_(i) * x_diff * x_diff.transpose();
   }
 
   // modifying state vector
   x_ = x_pred_;
   P_ = P_pred_;
-
-
 }
 
 

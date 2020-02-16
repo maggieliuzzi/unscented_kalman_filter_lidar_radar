@@ -8,7 +8,6 @@ const double pi = 3.1415;
 
 struct Ray
 {
-	
 	Vect3 origin;
 	double resolution;
 	Vect3 direction;
@@ -37,7 +36,6 @@ struct Ray
 
 		while(!collision && castDistance < maxDistance && (castPosition.y <= 6 && castPosition.y >= -6 && castPosition.x <= 50 && castPosition.x >= -15))
 		{
-
 			castPosition = castPosition + direction;
 			castDistance += resolution;
 
@@ -56,22 +54,20 @@ struct Ray
 			}
 		}
 
-		if((castDistance >= minDistance)&&(castDistance<=maxDistance)&& (castPosition.y <= 6 && castPosition.y >= -6 && castPosition.x <= 50 && castPosition.x >= -15))
+		if ((castDistance >= minDistance) && (castDistance <= maxDistance) && (castPosition.y <= 6 && castPosition.y >= -6 && castPosition.x <= 50 && castPosition.x >= -15))
 		{
 			// add noise based on standard deviation error
 			double rx = ((double) rand() / (RAND_MAX));
 			double ry = ((double) rand() / (RAND_MAX));
 			double rz = ((double) rand() / (RAND_MAX));
-			cloud->points.push_back(pcl::PointXYZ(castPosition.x+rx*sderr, castPosition.y+ry*sderr, castPosition.z+rz*sderr));
+			cloud->points.push_back(pcl::PointXYZ(castPosition.x + rx*sderr, castPosition.y + ry*sderr, castPosition.z + rz*sderr));
 		}
-			
 	}
-
 };
+
 
 struct Lidar
 {
-
 	std::vector<Ray> rays;
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
 	std::vector<Car> cars;
@@ -83,7 +79,7 @@ struct Lidar
 	double sderr;
 
 	Lidar(std::vector<Car> setCars, double setGroundSlope)
-		: cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0,0,3.0)
+		: cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0, 0, 3.0)
 	{
 		// TODO:: set minDistance to 5 to remove points from roof of ego car
 		minDistance = 0;
@@ -104,7 +100,7 @@ struct Lidar
 
 		double angleIncrement = angleRange/numLayers;
 
-		for(double angleVertical = steepestAngle; angleVertical < steepestAngle+angleRange; angleVertical+=angleIncrement)
+		for (double angleVertical = steepestAngle; angleVertical < steepestAngle+angleRange; angleVertical+=angleIncrement)
 		{
 			for(double angle = 0; angle <= 2*pi; angle+=horizontalAngleInc)
 			{
@@ -114,19 +110,21 @@ struct Lidar
 		}
 	}
 
+
 	~Lidar()
 	{
 		// pcl uses boost smart pointers for cloud pointer so we don't have to worry about manually freeing the memory
 	}
+
 
 	void updateCars(std::vector<Car> setCars)
 	{
 		cars = setCars;
 	}
 
+
 	pcl::PointCloud<pcl::PointXYZ>::Ptr scan()
 	{
- 
 		cloud->points.clear();
 		auto startTime = std::chrono::steady_clock::now();
 		for(Ray ray : rays)
@@ -138,7 +136,6 @@ struct Lidar
 		cloud->height = 1; // one dimensional unorganized point cloud dataset
 		return cloud;
 	}
-
 };
 
 #endif

@@ -14,7 +14,7 @@ UKF::UKF() {
   // if this is false, radar measurements will be ignored (except during init)
   use_radar_ = true;
 
-  // initial state vector
+  // initial state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   x_ = VectorXd(5);
 
   // initial covariance matrix
@@ -26,10 +26,8 @@ UKF::UKF() {
   // Process noise standard deviation yaw acceleration in rad/s^2
   std_yawdd_ = 30;
   
-  /**
-   * DO NOT MODIFY measurement noise values below.
-   * These are provided by the sensor manufacturer.
-   */
+
+  /* Measurement noise values provided by the sensor manufacturer. Do not modify. */
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -47,13 +45,28 @@ UKF::UKF() {
   std_radrd_ = 0.3;
   
   /**
-   * End DO NOT MODIFY section for measurement noise values 
-   */
-  
-  /**
    * TODO: Complete the initialization. See ukf.h for other member properties.
    * Hint: one or more values initialized above might be wildly off...
    */
+  is_initialized_ = false;
+
+  // Predicted sigma points matrix
+  Eigen::MatrixXd Xsig_pred_;  //// = ?
+
+  // Weights of sigma points
+  Eigen::VectorXd weights_;  //// = ?
+
+  // Time when the state is true, in us
+  long long time_us_;  //// = ?
+
+  // State dimension
+  int n_x_;  //// = ?
+
+  // Augmented state dimension
+  int n_aug_;  //// = ?
+
+  // Sigma point spreading parameter
+  double lambda_;  //// = ?
 }
 
 UKF::~UKF() {}
@@ -63,6 +76,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
    * TODO: Complete this function! Make sure you switch between lidar and radar
    * measurements.
    */
+
+  is_initialized_ = true;
+
 }
 
 void UKF::Prediction(double delta_t) {

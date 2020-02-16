@@ -47,13 +47,11 @@ class Tools {
 	lmarker lidarSense(Car& car, pcl::visualization::PCLVisualizer::Ptr& viewer, long long timestamp, bool visualize);
 	rmarker radarSense(Car& car, Car ego, pcl::visualization::PCLVisualizer::Ptr& viewer, long long timestamp, bool visualize);
 	void ukfResults(Car car, pcl::visualization::PCLVisualizer::Ptr& viewer, double time, int steps);
-	/**
-	* A helper method to calculate RMSE.
-	*/
-	VectorXd CalculateRMSE(const vector<VectorXd> &estimations, const vector<VectorXd> &ground_truth);
+
+	VectorXd CalculateRMSE(const vector<VectorXd> &estimations, const vector<VectorXd> &ground_truth);  // a helper method to calculate RMSE
+	
 	void savePcd(typename pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string file);
 	pcl::PointCloud<pcl::PointXYZ>::Ptr loadPcd(std::string file);
-	
 };
 
 #endif /* TOOLS_H_ */

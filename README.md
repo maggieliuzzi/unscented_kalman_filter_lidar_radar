@@ -4,6 +4,12 @@
 
 Implementing an Unscented Kalman Filter to estimate the state of multiple cars on a highway using noisy LiDAR and radar measurements, obtaining RMSE values that are lower than predefined tolerance threshold. 
 
+Extensions:
+
+<img src="media/ukf_highway_projected.gif" width="700" height="400" />
+
+<img src="media/ukf_highway_pcd.gif" width="700" height="400" />
+
 ## Building and running
 
 0. Clone this repo

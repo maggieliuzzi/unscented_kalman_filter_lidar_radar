@@ -27,7 +27,7 @@ lmarker Tools::lidarSense(Car& car, pcl::visualization::PCLVisualizer::Ptr& view
 		viewer->addSphere(pcl::PointXYZ(marker.x,marker.y,3.0), 0.5, 1, 0, 0, car.name+"_lmarker");
 
 	MeasurementPackage meas_package;
-	meas_package.sensor_type_ = MeasurementPackage::LASER;
+	meas_package.sensor_type_ = MeasurementPackage::LIDAR;
   	meas_package.raw_measurements_ = VectorXd(2);
     meas_package.raw_measurements_ << marker.x, marker.y;
     meas_package.timestamp_ = timestamp;

@@ -18,7 +18,7 @@ class UKF {
 
   /**
    * ProcessMeasurement
-   * @param meas_package The latest measurement data of either radar or laser
+   * @param meas_package The latest measurement data of either radar or LiDAR
    */
   void ProcessMeasurement(MeasurementPackage meas_package);
 
@@ -30,7 +30,7 @@ class UKF {
   void Prediction(double delta_t);
 
   /**
-   * Updates the state and the state covariance matrix using a laser measurement
+   * Updates the state and the state covariance matrix using a LiDAR measurement
    * @param meas_package The measurement at k+1
    */
   void UpdateLidar(MeasurementPackage meas_package);
@@ -42,26 +42,26 @@ class UKF {
   void UpdateRadar(MeasurementPackage meas_package);
 
 
-  // initially set to false, set to true in first call of ProcessMeasurement
-  bool is_initialized_;
+  bool use_lidar_;
 
-  // if this is false, laser measurements will be ignored (except for init)
-  bool use_laser_;
-
-  // if this is false, radar measurements will be ignored (except for init)
   bool use_radar_;
+  
 
-  // state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
+  // time when the state is true, in us
+  long long time_us_;
+
+  bool state_initialised_;
+
+
+  // state dimension
+  int n_x_;
+
+  // state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate], SI units and rad
   Eigen::VectorXd x_;
 
   // state covariance matrix
   Eigen::MatrixXd P_;
 
-  // predicted sigma points matrix
-  Eigen::MatrixXd Xsig_pred_;  // with sigma points as columns
-
-  // time when the state is true, in us
-  long long time_us_;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
   double std_a_;
@@ -69,11 +69,12 @@ class UKF {
   // Process noise standard deviation yaw acceleration in rad/s^2
   double std_yawdd_;
 
-  // Laser measurement noise standard deviation position1 in m
-  double std_laspx_;
 
-  // Laser measurement noise standard deviation position2 in m
-  double std_laspy_;
+  // LiDAR measurement noise standard deviation, m (px)
+  double std_lidpx_;
+
+  // LiDAR measurement noise standard deviation, m (py)
+  double std_lidpy_;
 
   // Radar measurement noise standard deviation radius in m
   double std_radr_;
@@ -84,11 +85,6 @@ class UKF {
   // Radar measurement noise standard deviation radius change in m/s
   double std_radrd_ ;
 
-  // Weights of sigma points
-  Eigen::VectorXd weights_;
-
-  // State dimension
-  int n_x_;
 
   // Augmented state dimension
   int n_aug_;
@@ -96,24 +92,18 @@ class UKF {
   // Sigma point spreading parameter
   double lambda_;
 
+  // Weights of sigma points
+  Eigen::VectorXd weights_;
 
-  // Auxiliary  ////
+  // predicted sigma points matrix
+  Eigen::MatrixXd Xsig_pred_;
 
-  Eigen::VectorXd x_aug_;  // augmented mean vector
-  Eigen::MatrixXd P_aug_;  // augmented state covariance
+  
+  // current NISs
+  double NIS_lidar_;
 
-  Eigen::MatrixXd Xsig_;  // sigma point matrix
-  Eigen::MatrixXd Xsig_aug_;
-
-  Eigen::VectorXd x_pred_;  // vector for predicted state
-  Eigen::MatrixXd P_pred_;  // covariance matrix for prediction
-
-  int n_z_;
-  Eigen::MatrixXd Zsig_;  // sigma points in measurement space
-  Eigen::VectorXd z_pred_;  // mean predicted measurement
-  Eigen::MatrixXd S_;  // measurement covariance matrix S
-  Eigen::MatrixXd R_; // measurement noise covariance matrix
-
+  double NIS_radar_;
+  
 };
 
 #endif  // UKF_H

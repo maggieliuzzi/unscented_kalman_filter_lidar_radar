@@ -11,7 +11,7 @@ public:
 
   enum SensorType 
   {
-    LASER,
+    LIDAR,
     RADAR
   } sensor_type_;
 

@@ -137,6 +137,8 @@ public:
 				tools.estimations.push_back(estimate);
 			}
 		}
+
+		// Comparing the position and velocity values that the algorithm outputs to the ground truth data
 		viewer->addText("Accuracy - RMSE:", 30, 300, 20, 1, 1, 1, "rmse");
 		VectorXd rmse = tools.CalculateRMSE(tools.estimations, tools.ground_truth);
 		viewer->addText(" X: " + std::to_string(rmse[0]), 30, 275, 20, 1, 1, 1, "rmse_x");

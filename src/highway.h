@@ -129,11 +129,11 @@ public:
 				tools.radarSense(traffic[i], egoCar, viewer, timestamp, visualize_radar);
 				tools.ukfResults(traffic[i],viewer, projectedTime, projectedSteps);
 				VectorXd estimate(4);
-				double v  = traffic[i].ukf.x_(2);
-    			double yaw = traffic[i].ukf.x_(3);
+				double v  = traffic[i].ukf.state_(2);
+    			double yaw = traffic[i].ukf.state_(3);
     			double v1 = cos(yaw)*v;
     			double v2 = sin(yaw)*v;
-				estimate << traffic[i].ukf.x_[0], traffic[i].ukf.x_[1], v1, v2;
+				estimate << traffic[i].ukf.state_[0], traffic[i].ukf.state_[1], v1, v2;
 				tools.estimations.push_back(estimate);
 			}
 		}

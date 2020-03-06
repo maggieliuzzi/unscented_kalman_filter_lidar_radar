@@ -23,8 +23,7 @@ class UKF {
   void ProcessMeasurement(MeasurementPackage meas_package);
 
   /**
-   * Prediction Predicts sigma points, the state, and the state covariance
-   * matrix
+   * Prediction Predicts sigma points, the state, and the state covariance matrix
    * @param delta_t Time between k and k+1 in s
    */
   void Prediction(double delta_t);
@@ -47,27 +46,27 @@ class UKF {
   bool use_radar_;
   
 
-  // time when the state is true, in us
+  // Time when the state is true, in us
   long long time_us_;
 
   bool state_initialised_;
 
 
-  // state dimension
-  int n_x_;
+  // State dimension
+  int state_dim_;
 
-  // state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate], SI units and rad
-  Eigen::VectorXd x_;
+  // State vector: [pos1 pos2 vel_abs yaw_angle yaw_rate], SI units and rad
+  Eigen::VectorXd state_;
 
-  // state covariance matrix
-  Eigen::MatrixXd P_;
+  // State covariance matrix
+  Eigen::MatrixXd STATE_COV_;
 
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  double std_a_;
+  double dev_lin_acc;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  double std_yawdd_;
+  double dev_ang_acc;
 
 
   // LiDAR measurement noise standard deviation, m (px)
@@ -87,7 +86,7 @@ class UKF {
 
 
   // Augmented state dimension
-  int n_aug_;
+  int state_dim_aug_;
 
   // Sigma point spreading parameter
   double lambda_;
@@ -95,11 +94,11 @@ class UKF {
   // Weights of sigma points
   Eigen::VectorXd weights_;
 
-  // predicted sigma points matrix
-  Eigen::MatrixXd Xsig_pred_;
+  // Predicted sigma points matrix
+  Eigen::MatrixXd SIG_PT_pred_;
 
   
-  // current NISs
+  // Current NISs
   double NIS_lidar_;
 
   double NIS_radar_;
